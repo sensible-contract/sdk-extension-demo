@@ -8,6 +8,7 @@ import {
   getNftAuctionUtxo,
   WitnessOracle,
 } from "@sensible-contract/nft-auction-js";
+import * as nftAuctionProto from "@sensible-contract/nft-auction-js/lib/contract-proto/nftAuction.proto";
 import {
   createNftTransferTx,
   createNftUnlockCheckContractTx,
@@ -20,6 +21,7 @@ import {
   createNftSellContractTx,
   getSellInput,
 } from "@sensible-contract/nft-sell-js";
+import { getZeroAddress } from "@sensible-contract/sdk-core";
 import {
   getNftSigner,
   NFT,
@@ -132,6 +134,7 @@ export class Sensible extends ParentSensible {
       return { rawtxs: [txComposer.getRawHex(), transferNftResult.rawtx] };
     } else {
       let txid1 = await this.provider.broadcast(txComposer.getRawHex());
+      await sleep(3);
       let txid2 = await this.provider.broadcast(transferNftResult.rawtx);
       return { txids: [txid1, txid2] };
     }
@@ -265,10 +268,22 @@ export class Sensible extends ParentSensible {
     if (balance < fee) throw "Insufficient Bsv Balance.";
     let nftSigner = await getNftSigner(nftInput.rabinPubKeyHashArrayHash);
 
+    let auctionLockingScriptBuff = nftAuctionInput.lockingScript.toBuffer();
+
+    let datapart = nftAuctionProto.parseDataPart(auctionLockingScriptBuff);
+    datapart.bidBsvPrice = 0;
+    datapart.bidTimestamp = 0;
+    (datapart.bidderAddress =
+      getZeroAddress("mainnet").hashBuffer.toString("hex")),
+      (auctionLockingScriptBuff = nftAuctionProto.updateScript(
+        nftAuctionInput.lockingScript.toBuffer(),
+        datapart
+      ));
+
     let nftForAuctionRet = await createNftForAuctionContractTx(this.provider, {
       nftInput,
       auctionContractHash: bsv.crypto.Hash.sha256ripemd160(
-        nftAuctionInput.lockingScript.toBuffer()
+        auctionLockingScriptBuff
       ).toString("hex"),
       utxos,
     });
