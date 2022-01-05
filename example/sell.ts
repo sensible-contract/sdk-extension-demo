@@ -1,6 +1,5 @@
-import { SensiblequeryProvider } from "@sensible-contract/providers";
 import { LocalWallet } from "@sensible-contract/wallets";
-import { Sensible } from "../src/index";
+import Web3 from "../src";
 
 let CREATURE = {
   codehash: "22519e29424dc4b94b9273b6500ebadad7b9ad02",
@@ -8,13 +7,12 @@ let CREATURE = {
   tokenIndex: "24",
 };
 
-let provider = new SensiblequeryProvider();
 let wallet = LocalWallet.fromWIF("xxxxx");
-let sensible = new Sensible(provider, wallet);
+let web3 = new Web3(wallet);
 let address = "16dpFB5oUCL9Cj2Mq9fUEJCLLqTzn6bQQg";
 
 async function sell() {
-  let { txids } = await sensible.sellNft({
+  let { txids } = await web3.sensible.sellNft({
     nft: CREATURE,
     satoshisPrice: 500,
   });
@@ -22,14 +20,14 @@ async function sell() {
 }
 
 async function cancelSell() {
-  let { txids } = await sensible.cancelSellNft({
+  let { txids } = await web3.sensible.cancelSellNft({
     nft: CREATURE,
   });
   console.log("cancelSellNft", txids);
 }
 
 async function buy() {
-  let { txids } = await sensible.buyNft({
+  let { txids } = await web3.sensible.buyNft({
     nft: CREATURE,
   });
   console.log("buy", txids);

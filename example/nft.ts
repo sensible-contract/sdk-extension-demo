@@ -1,6 +1,5 @@
-import { SensiblequeryProvider } from "@sensible-contract/providers";
 import { LocalWallet } from "@sensible-contract/wallets";
-import { Sensible } from "../src/index";
+import Web3 from "../src";
 async function sleep(time: number) {
   return new Promise((resolve, reject) => {
     setTimeout(() => {
@@ -16,18 +15,17 @@ let CREATURE = {
     "5a66ac39ab572c2116d8ccbf8933c69717b0423eb21784757c0a42df65d6e68400000000",
 };
 
-let provider = new SensiblequeryProvider();
 let wallet = LocalWallet.fromWIF("xxxxx");
-let sensible = new Sensible(provider, wallet);
+let web3 = new Web3(wallet);
 
 async function genesis() {
-  let { nft, txid } = await sensible.genesisNft({
+  let { nft, txid } = await web3.sensible.genesisNft({
     totalSupply: "100",
   });
   console.log(nft, txid);
 }
 async function mint(idx: number) {
-  let txid = await sensible.mintNft({
+  let txid = await web3.sensible.mintNft({
     nft: CREATURE,
     metaData: {
       name: "CREATURE(FAKE)",
@@ -38,15 +36,15 @@ async function mint(idx: number) {
 }
 
 async function send() {
-  let t = await sensible.transferNft({
+  let t = await web3.sensible.transferNft({
     nft: Object.assign({}, CREATURE, { tokenIndex: "2" }),
   });
 }
 
 async function getNftMetaData() {
-  let data = await sensible.getNftMetaData(provider, {
-    nft: Object.assign({}, CREATURE, { tokenIndex: "0" }),
-  });
+  let data = await web3.sensible.getNftMetaData(
+    Object.assign({}, CREATURE, { tokenIndex: "0" })
+  );
   console.log(data);
 }
 

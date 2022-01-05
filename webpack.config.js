@@ -5,7 +5,7 @@ const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 module.exports = {
   mode: "production",
   entry: {
-    sensible: "./lib/index.js",
+    "sensible-web3": "./lib/index.js",
   },
   plugins: [
     new CleanWebpackPlugin(),
@@ -14,7 +14,6 @@ module.exports = {
     }),
     new webpack.IgnorePlugin({
       checkResource(resource) {
-        // "@ethereumjs/common/genesisStates" consists ~800KB static files which are no more needed
         return /(.*\/genesisStates\/.*\.json)/.test(resource);
       },
     }),
@@ -72,7 +71,7 @@ module.exports = {
   output: {
     filename: "[name].min.js",
     path: path.resolve(__dirname, "umd"),
-    library: "sensible",
+    library: "sensible-web3",
     libraryTarget: "umd",
   },
   performance: {
